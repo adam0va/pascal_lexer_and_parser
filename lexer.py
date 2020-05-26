@@ -22,6 +22,7 @@ class Lexer:
 	def take(self, c):
 		if c == '\n':
 			self.current_line = self.current_line + 1
+		print(f'{c} {self.current_line}')
 
 		if self.state == State.H:
 			self.state_H(c)
@@ -32,16 +33,14 @@ class Lexer:
 		elif self.state == State.STRING:
 			self.state_STRING(c)
 		elif self.state == State.ERROR:
-			print(f'Error occured')
 			return
 		elif self.state == State.ASSIGNMENT:
 			self.state_ASSIGNMENT(c)
 
-	def get_lexem(self):
-		if self.lexems_ready:
-			lexem_to_return = self.lexems_ready[0]
-			self.lexems_ready = self.lexems_ready[1:]
-			return lexem_to_return
+	def get_lexems(self):
+		lexems_to_return = self.lexems_ready
+		self.lexems_ready = ''
+		return lexems_to_return
 
 	def make_lexem(self, type_of_lexem_):
 		new_lexem = Lexem(self.current_line, self.current_lexem, type_of_lexem_)
@@ -67,7 +66,7 @@ class Lexer:
 			self.handle_delimiter(c)
 
 	def state_IDENT(self, c):
-		if c.isalpha() or c.isnumeric():
+		if c.isalpha() or c.isnumeric() or c == '_':
 			self.current_lexem = self.current_lexem + c
 		elif c in self.delimiters:
 			self.make_lexem(TypeOfLexem.identificator)
@@ -75,12 +74,16 @@ class Lexer:
 		elif self.__is_space(c):
 			self.make_lexem(TypeOfLexem.identificator)
 			self.state = State.H
+		else:
+			self.state = State.ERROR
+			print(f'Line {self.current_line}: Unexpected symbol in identificator')
 
 	def state_NUMBER(self, c):
 		if c.isnumeric():
 			self.current_lexem = self.current_lexem + c
 		elif c.isalpha():
 			self.state = State.ERROR
+			print(f'Line {self.current_line}: Number expected')
 		elif c in self.delimiters:
 			self.make_lexem(TypeOfLexem.number)
 			self.handle_delimiter(c)
@@ -91,13 +94,19 @@ class Lexer:
 	def state_STRING(self, c):
 		if c == '"':
 			self.make_lexem(TypeOfLexem.string)
+			self.state = State.H
 		else:
 			self.current_lexem = self.current_lexem + c
 
 	def state_ASSIGNMENT(self, c):
 		if c == '=':
+			self.current_lexem = self.current_lexem + c
 			self.make_lexem(TypeOfLexem.keyword)
 			self.state = State.H
+		else: 
+			self.make_lexem(TypeOfLexem.keyword)
+			self.state = State.H
+			self.state_H(c)
 
 	def handle_delimiter(self, c):
 		self.current_lexem = self.current_lexem + c
@@ -114,17 +123,15 @@ def lex_analysis(filename: str):
 	with open(filename) as file:
 		data = file.read()
 
+	data = list(data)
+	print(data)
 	lexer = Lexer()
-	print(lexer.lexems_ready)
 	lexems = []
 
 	for symbol in data:
 		lexer.take(symbol)
-		'''new_lexem = lexer.get_lexem()
-		if new_lexem:
-			lexems.append(new_lexem)'''
 
-	lexems = lexer.lexems_ready
+	lexems = lexems + lexer.lexems_ready
 
 	for lexem in lexems:
 		print(f'{lexem.number_of_line}: {lexem.lexem_string} {lexem.type_of_lexem}')
