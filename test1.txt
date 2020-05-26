@@ -1,0 +1,11 @@
+program myprogram;
+
+var a, b, c: Integer;
+var str: Word;
+
+begin
+readln;
+writeln(2*4);
+a := 3 * 7;
+
+end.
