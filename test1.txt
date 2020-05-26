@@ -5,7 +5,8 @@ var str: Word;
 
 begin
 readln;
-writeln(2*4);
+writeln(234*4);
 a := 3 * 7;
+str := "hello";
 
 end.
