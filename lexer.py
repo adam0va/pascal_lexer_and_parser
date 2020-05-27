@@ -8,11 +8,15 @@ class State(Enum):
 	STRING = 4
 	ERROR = 5
 	ASSIGNMENT = 6
+	PLUS_MINUS = 7
 
 class Lexer:
 	keywords = {'program', 'var', 'Byte', 'Word', 'ShortInt', 'Integer', 'LongInt',\
 	'begin', 'end', 'readln', 'writeln', 'div', 'mod', 'const'}
-	delimiters = {';', '.', ':', ',', '(', ')', '+', '-', '*', ':='}
+	delimiters = {';', '.', ':', ',', '(', ')', '='}
+	arithmetic_operations = {'+', '-', '*'}
+	assignment = {':='}
+	any_sign = {';', '.', ':', ',', '(', ')', '+', '-', '*', ':=', '='}
 	def __init__(self):
 		self.state = State.H
 		self.current_line = 1
@@ -36,6 +40,8 @@ class Lexer:
 			return
 		elif self.state == State.ASSIGNMENT:
 			self.state_ASSIGNMENT(c)
+		elif self.state == State.PLUS_MINUS:
+			self.state_PLUS_MINUS(c)
 
 	def get_lexems(self):
 		lexems_to_return = self.lexems_ready
@@ -62,15 +68,15 @@ class Lexer:
 			self.state = State.NUMBER
 		elif c == '"':
 			self.state = State.STRING
-		elif c in self.delimiters:
-			self.handle_delimiter(c)
+		elif c in self.any_sign:
+			self.handle_signs(c)
 
 	def state_IDENT(self, c):
 		if c.isalpha() or c.isnumeric() or c == '_':
 			self.current_lexem = self.current_lexem + c
-		elif c in self.delimiters:
+		elif c in self.any_sign:
 			self.make_lexem(TypeOfLexem.identificator)
-			self.handle_delimiter(c)
+			self.handle_signs(c)
 		elif self.__is_space(c):
 			self.make_lexem(TypeOfLexem.identificator)
 			self.state = State.H
@@ -84,9 +90,9 @@ class Lexer:
 		elif c.isalpha():
 			self.state = State.ERROR
 			print(f'Line {self.current_line}: Number expected')
-		elif c in self.delimiters:
+		elif c in self.any_sign:
 			self.make_lexem(TypeOfLexem.number)
-			self.handle_delimiter(c)
+			self.handle_signs(c)
 		elif self.__is_space(c):
 			self.make_lexem(TypeOfLexem.number)
 			self.state = State.H
@@ -101,12 +107,44 @@ class Lexer:
 	def state_ASSIGNMENT(self, c):
 		if c == '=':
 			self.current_lexem = self.current_lexem + c
-			self.make_lexem(TypeOfLexem.keyword)
+			self.make_lexem(TypeOfLexem.assignment)
 			self.state = State.H
 		else: 
-			self.make_lexem(TypeOfLexem.keyword)
+			self.make_lexem(TypeOfLexem.delimiter)
 			self.state = State.H
 			self.state_H(c)
+
+	def state_PLUS_MINUS(self, c):
+		# если следующим за знаком +/- автомат получил число, то
+		if c.isnumeric():
+			# если перед ним распознана переменная или идентификатор, то
+			# будем считать, что +/- это знак арифметической операции
+			if self.lexems_ready[-1].type_of_lexem == TypeOfLexem.number or \
+			self.lexems_ready[-1].type_of_lexem == TypeOfLexem.identificator:
+				self.make_lexem(TypeOfLexem.arithmetic_operation)
+				self.state = State.H
+				self.state_H(c)
+			# если перед ним распознан любой другой знак, то 
+			# будем считать, что +/- это знак знакового числа
+			else:
+				self.current_lexem = self.current_lexem + c
+				self.state.NUMBER
+		# если следующим за знаком +/- автомат получил НЕ число, то
+		# будем считать, что +/- это знак арифметической операции
+		else:
+			self.make_lexem(TypeOfLexem.arithmetic_operation)
+			self.state = State.H
+			self.state_H(c)
+
+		'''
+		if c.isnumeric():
+			self.current_lexem = self.current_lexem + c
+			self.state = State.NUMBER
+		else:
+			self.make_lexem(TypeOfLexem.arithmetic_operation)
+			self.state = State.H
+			self.state_H(c)
+		'''
 
 	def handle_delimiter(self, c):
 		self.current_lexem = self.current_lexem + c
@@ -118,6 +156,18 @@ class Lexer:
 
 	def __is_space(self, c):
 		return c in {' ', '\n', '\t'}
+
+	def handle_signs(self, c):
+		self.current_lexem = self.current_lexem + c
+		if c == ':':
+			self.state = State.ASSIGNMENT
+		elif c in {'+', '-'}:
+			self.state = State.PLUS_MINUS
+		elif c == '*':
+			self.make_lexem(TypeOfLexem.arithmetic_operation)
+		else:
+			self.make_lexem(TypeOfLexem.delimiter)
+			self.state = State.H
 	
 def lex_analysis(filename: str):
 	with open(filename) as file:

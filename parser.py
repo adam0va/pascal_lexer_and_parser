@@ -27,8 +27,23 @@ class Parser:
 		if self.print_lexem:
 			print(f'Currently examining lexem  "{self.current_lexem}"')
 
-	def check_correctness_of_the_keyword(self, keyword: str):
+	def check_correctness_of_keyword(self, keyword: str):
 		if self.lexems[self.number_of_current_lexem].type_of_lexem != TypeOfLexem.keyword:
+			return False
+		return self.lexems[self.number_of_current_lexem] == keyword
+
+	def check_correctness_of_delimiter(self, keyword: str):
+		if self.lexems[self.number_of_current_lexem].type_of_lexem != TypeOfLexem.delimiter:
+			return False
+		return self.lexems[self.number_of_current_lexem] == keyword
+
+	def check_correctness_of_assigment_sign(self, keyword: str):
+		if self.lexems[self.number_of_current_lexem].type_of_lexem != TypeOfLexem.assignment:
+			return False
+		return self.lexems[self.number_of_current_lexem] == keyword
+
+	def check_correctness_of_arithmetic_operation_sign(self, keyword: str):
+		if self.lexems[self.number_of_current_lexem].type_of_lexem != TypeOfLexem.arithmetic_operation:
 			return False
 		return self.lexems[self.number_of_current_lexem] == keyword
 
@@ -37,15 +52,15 @@ class Parser:
 
 	def program(self):
 		self.head_of_the_program()
-		if not check_correctness_of_the_keyword(';'):
+		if not check_correctness_of_delimiter(';'):
 			raise ParserSyntaxError('";" expected between head of the program and block')
 		self.next()
 		self.block()
-		if not check_correctness_of_the_keyword('.'):
+		if not check_correctness_of_delimiter('.'):
 			raise ParserSyntaxError('"." expected in the end of the program')
 
 	def head_of_the_program(self):
-		if not check_correctness_of_the_keyword('program'):
+		if not check_correctness_of_keyword('program'):
 			raise ParserSyntaxError('"program" expected in the beginning of the program')
 		self.next()
 		if not self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
@@ -53,13 +68,13 @@ class Parser:
 		self.next()
 
 	def block(self):
-		if check_correctness_of_the_keyword('var') or check_correctness_of_the_keyword('const'):
+		if check_correctness_of_keyword('var') or check_correctness_of_keyword('const'):
 			self.declarative_part()
 		self.operators()
 
 	def declarative_part(self):
 		self.list_of_sections()
-		if not check_correctness_of_the_keyword(';'):
+		if not check_correctness_of_delimiter(';'):
 			raise ParserSyntaxError('";" expected after sections with constants and variables')
 
 	def list_of_sections(self):
@@ -67,19 +82,19 @@ class Parser:
 		self.list_of_sections_()
 
 	def list_of_sections_(self):
-		if check_correctness_of_the_keyword(';'):
+		if check_correctness_of_delimiter(';'):
 			self.next()
 			self.section()
 			self.list_of_sections_()
 
 	def section(self):
-		if check_correctness_of_the_keyword('var'):
+		if check_correctness_of_keyword('var'):
 			self.section_of_variables()
-		elif if check_correctness_of_the_keyword('const'): 
+		elif if check_correctness_of_keyword('const'): 
 			self.section_of_constants()
 
 	def section_of_variables(self):
-		if not check_correctness_of_the_keyword('var'):
+		if not check_correctness_of_keyword('var'):
 			raise ParserSyntaxError('"var" expected')
 		self.next()
 		self.list_of_variables_description()
@@ -89,13 +104,13 @@ class Parser:
 		self.list_of_variables_description_()
 
 	def list_of_variables_description_(self):
-		if check_correctness_of_the_keyword(';'):
+		if check_correctness_of_delimiter(';'):
 			self.variables_description()
 			self.list_of_variables_description_()
 
 	def variables_description(self):
 		self.list_of_variables()
-		if not check_correctness_of_the_keyword(':'):
+		if not check_correctness_of_delimiter(':'):
 			raise ParserSyntaxError('":" expected')
 		self.next()
 		self.type()
@@ -105,7 +120,7 @@ class Parser:
 		self.list_of_variables_()
 
 	def list_of_variables_(self):
-		if check_correctness_of_the_keyword(','):
+		if check_correctness_of_delimiter(','):
 			self.variable()
 			self.list_of_variables_()
 
@@ -121,7 +136,31 @@ class Parser:
 			raise ParserSyntaxError('Type expected')
 		self.next()
 
-	
+	def section_of_constants(self):
+		if not self.check_correctness_of_the_keyword('const'):
+			raise ParserSyntaxError('"const" expected before constants description')
+		self.next()
+		self.list_of_constants_declaration()
+
+	def list_of_constants_declaration(self):
+		self.constant_declaration()
+		self.list_of_constants_declaration_()
+
+	def list_of_constants_declaration_(self):
+		if self.check_correctness_of_delimiter(';'):
+			self.constant_declaration()
+			self.list_of_constants_declaration_()
+
+	def constant_declaration(self):
+		self.name_of_constant()
+		is not self.check_correctness_of_delimiter('='):
+			raise ParserSyntaxError('"=" expected in constant declaration')
+		self.next()
+		self.constant()
+
+	def name_of_constant(self):
+		
+
 
 
 

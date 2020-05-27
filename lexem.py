@@ -5,6 +5,9 @@ class TypeOfLexem(Enum):
 	number = 2
 	keyword = 3
 	identificator = 4
+	arithmetic_operation = 5
+	assignment = 6
+	delimiter = 7
 
 class Lexem:
 	def __init__(self, number_of_line_, lexem_string_, type_of_lexem_, **kwagrs):
