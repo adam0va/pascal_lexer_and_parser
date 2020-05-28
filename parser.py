@@ -100,10 +100,15 @@ class Parser:
 	def list_of_sections_(self):
 		if self.print_name_of_functions:
 			print('list_of_sections_')
+		if self.check_correctness_of_keyword('var') or self.check_correctness_of_keyword('const'):
+			self.section()
+			self.list_of_sections_()
+		'''
 		if self.check_correctness_of_delimiter(';'):
 			self.next()
 			self.section()
 			self.list_of_sections_()
+		'''
 
 	def section(self):
 		if self.print_name_of_functions:
@@ -344,10 +349,8 @@ class Parser:
 	def arithmetic_expression(self):
 		if self.print_name_of_functions:
 			print('arithmetic_expression')
-		if self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number:
-			self.next()
-			self.arithmetic_expression_()
-		elif self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
+		if self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number or \
+		self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
 			self.next()
 			self.arithmetic_expression_()
 

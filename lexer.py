@@ -26,7 +26,7 @@ class Lexer:
 	def take(self, c):
 		if c == '\n':
 			self.current_line = self.current_line + 1
-		print(f'{c} {self.current_line}')
+		print(f'{c} {self.current_line} {self.state}')
 
 		if self.state == State.H:
 			self.state_H(c)
@@ -130,6 +130,7 @@ class Lexer:
 			else:
 				self.current_lexem = self.current_lexem + c
 				self.state = State.NUMBER
+
 		# если следующим за знаком +/- автомат получил НЕ число, то
 		# будем считать, что +/- это знак арифметической операции
 		else:
@@ -166,6 +167,7 @@ class Lexer:
 			self.state = State.PLUS_MINUS
 		elif c == '*':
 			self.make_lexem(TypeOfLexem.arithmetic_operation)
+			self.state = State.H
 		else:
 			self.make_lexem(TypeOfLexem.delimiter)
 			self.state = State.H
