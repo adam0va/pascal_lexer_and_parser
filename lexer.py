@@ -119,6 +119,7 @@ class Lexer:
 		if c.isnumeric():
 			# если перед ним распознана переменная или идентификатор, то
 			# будем считать, что +/- это знак арифметической операции
+			print(f'last type: {self.lexems_ready[-1].type_of_lexem}')
 			if self.lexems_ready[-1].type_of_lexem == TypeOfLexem.number or \
 			self.lexems_ready[-1].type_of_lexem == TypeOfLexem.identificator:
 				self.make_lexem(TypeOfLexem.arithmetic_operation)
@@ -128,7 +129,7 @@ class Lexer:
 			# будем считать, что +/- это знак знакового числа
 			else:
 				self.current_lexem = self.current_lexem + c
-				self.state.NUMBER
+				self.state = State.NUMBER
 		# если следующим за знаком +/- автомат получил НЕ число, то
 		# будем считать, что +/- это знак арифметической операции
 		else:
@@ -185,6 +186,8 @@ def lex_analysis(filename: str):
 
 	for lexem in lexems:
 		print(f'{lexem.number_of_line}: {lexem.lexem_string} {lexem.type_of_lexem}')
+
+	return lexems
 
 
 

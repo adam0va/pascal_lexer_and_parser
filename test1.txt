@@ -1,13 +1,15 @@
 program my_program;
 
 var a, b, c: Integer;
-var str: Word;
+	str: Word;
+const
+	s = 12;
 
 begin
-readln;
-writeln(-234*4);
-a := 3 - -7;
-b := -7;
-str := "hello";
+	readln;
+	writeln(-234*4);
+	a := 3 - -7;
+	b := -7;
+	str := "hello";
 
 end.
