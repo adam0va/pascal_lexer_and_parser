@@ -26,7 +26,7 @@ class Lexer:
 	def take(self, c):
 		if c == '\n':
 			self.current_line = self.current_line + 1
-		#print(f'{c} {self.current_line} {self.state}')
+		print(f'{c} {self.current_line} {self.state}')
 
 		if self.state == State.H:
 			self.state_H(c)
@@ -81,8 +81,10 @@ class Lexer:
 			self.make_lexem(TypeOfLexem.identificator)
 			self.state = State.H
 		else:
-			self.state = State.ERROR
-			print(f'Line {self.current_line}: Unexpected symbol in identificator')
+			self.make_lexem(TypeOfLexem.identificator)
+			self.state = State.H
+			self.state_H(c)
+			#print(f'Line {self.current_line}: Unexpected symbol in identificator')
 
 	def state_NUMBER(self, c):
 		if c.isnumeric():
@@ -203,7 +205,7 @@ def lex_analysis(filename: str):
 		data = file.read()
 
 	data = list(data)
-	#print(data)
+	print(data)
 	lexer = Lexer()
 	lexems = []
 

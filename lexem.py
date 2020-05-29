@@ -8,6 +8,7 @@ class TypeOfLexem(Enum):
 	arithmetic_operation = 5
 	assignment = 6
 	delimiter = 7
+	eof = 8
 
 class Lexem:
 	def __init__(self, number_of_line_, lexem_string_, type_of_lexem_, **kwagrs):

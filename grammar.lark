@@ -49,9 +49,10 @@ constant : whole_constant
 whole_constant : SIGN whole_unsigned_number | whole_unsigned_number 
 whole_unsigned_number : (NUMBER)+
 SIGN : "+" | "-"
-text_constant : "\"" (LETTER|NUMBER)* "\""
+text_constant : "\"" (ASCII_SYMBOL)* "\""
 
 LETTER : ("a".."z" | "_")+
+ASCII_SYMBOL : (" ".."~")
 NUMBER : ("0".."9")+
 WHITESPACE : (" " | "\n" | "\t")+
 %ignore WHITESPACE
