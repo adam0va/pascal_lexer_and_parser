@@ -338,6 +338,16 @@ class Parser:
 	def expression(self):
 		if self.print_name_of_functions:
 			print('expression')
+
+		if self.lexems[self.number_of_current_lexem].type_of_lexem in {TypeOfLexem.number, \
+		TypeOfLexem.identificator} or self.lexems[self.number_of_current_lexem].lexem_string in \
+		{'+', '-'}:
+			self.arithmetic_expression()
+		elif self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.string:
+			self.next()
+		else:
+			raise ParserSyntaxError('Expression expected')
+		'''
 		if self.lexems[self.number_of_current_lexem].type_of_lexem in {TypeOfLexem.number, \
 		TypeOfLexem.identificator}:
 			self.arithmetic_expression()
@@ -345,14 +355,24 @@ class Parser:
 			self.next()
 		else:
 			raise ParserSyntaxError('Expression expected')
+		'''
 
 	def arithmetic_expression(self):
 		if self.print_name_of_functions:
 			print('arithmetic_expression')
 		if self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number or \
+		self.lexems[self.number_of_current_lexem].lexem_string in {'+', '-'}:
+			self.number()
+			self.arithmetic_expression_()
+		elif self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
+			self.next()
+			self.arithmetic_expression_()
+		'''
+		if self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number or \
 		self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
 			self.next()
 			self.arithmetic_expression_()
+		'''
 
 	def arithmetic_expression_(self):
 		if self.print_name_of_functions:
@@ -377,6 +397,14 @@ class Parser:
 			self.next()
 		else:
 			raise ParserSyntaxError('Arithmetic operation sign expected')
+
+	def number(self):
+		if self.check_correctness_of_arithmetic_operation_sign('+') \
+		or self.check_correctness_of_arithmetic_operation_sign('-'):
+			self.next()
+		if not self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number:
+			raise ParserSyntaxError('Number exprected')
+		self.next()
 
 
 

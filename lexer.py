@@ -96,6 +96,19 @@ class Lexer:
 		elif self.__is_space(c):
 			self.make_lexem(TypeOfLexem.number)
 			self.state = State.H
+		'''
+		if c.isnumeric():
+			self.current_lexem = self.current_lexem + c
+		elif c.isalpha():
+			self.state = State.ERROR
+			print(f'Line {self.current_line}: Number expected')
+		elif c in self.any_sign:
+			self.make_lexem(TypeOfLexem.number)
+			self.handle_signs(c)
+		elif self.__is_space(c):
+			self.make_lexem(TypeOfLexem.number)
+			self.state = State.H
+		'''
 
 	def state_STRING(self, c):
 		if c == '"':
@@ -115,6 +128,8 @@ class Lexer:
 			self.state_H(c)
 
 	def state_PLUS_MINUS(self, c):
+		pass
+		'''
 		# если следующим за знаком +/- автомат получил число, то
 		if c.isnumeric():
 			# если перед ним распознана переменная или идентификатор, то
@@ -137,7 +152,7 @@ class Lexer:
 			self.make_lexem(TypeOfLexem.arithmetic_operation)
 			self.state = State.H
 			self.state_H(c)
-
+		'''
 		'''
 		if c.isnumeric():
 			self.current_lexem = self.current_lexem + c
@@ -163,6 +178,16 @@ class Lexer:
 		self.current_lexem = self.current_lexem + c
 		if c == ':':
 			self.state = State.ASSIGNMENT
+		elif c in self.arithmetic_operations:
+			self.make_lexem(TypeOfLexem.arithmetic_operation)
+			self.state = State.H
+		else:
+			self.make_lexem(TypeOfLexem.delimiter)
+			self.state = State.H
+		'''
+		self.current_lexem = self.current_lexem + c
+		if c == ':':
+			self.state = State.ASSIGNMENT
 		elif c in {'+', '-'}:
 			self.state = State.PLUS_MINUS
 		elif c == '*':
@@ -171,6 +196,7 @@ class Lexer:
 		else:
 			self.make_lexem(TypeOfLexem.delimiter)
 			self.state = State.H
+		'''
 	
 def lex_analysis(filename: str):
 	with open(filename) as file:

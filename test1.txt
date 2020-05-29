@@ -6,11 +6,11 @@ const
 	s = 12;
 
 begin
-	readln;
-	writeln(-234*4* 14);
+	readln ;
+	writeln (-234 * 4 * 14);
 	a := 3 - -7;
 	b := -7;
 	str := "hello";
-	writeln("goodbye!")
+	writeln ( "goodbye!" )
 
 end.
