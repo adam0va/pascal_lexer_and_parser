@@ -1,0 +1,64 @@
+start : head_of_the_program ";" block "."
+head_of_the_program : "program" name_of_the_program
+name_of_the_program : identificator
+identificator : LETTER (LETTER | NUMBER)*
+block : declarative_part operators
+		| operators
+
+declarative_part : (list_of_sections ";")?
+list_of_sections : section (";" list_of_sections)*
+section : section_of_variables | section_of_constants
+
+section_of_variables : "var" list_of_variables_description
+list_of_variables_description : variable_description (";" variable_description)*
+variable_description : list_of_variables ":" TYPE
+list_of_variables : variable ( "," variable )*
+variable: identificator
+TYPE : "Word" | "Byte" | "ShortInt" | "Integer" | "LongInt"
+
+operators : "begin" operators_sequence "end"
+operators_sequence : operator (";" operator)*
+operator : (input_operator | output_operator | operator_of_assignment)?
+
+input_operator : READLN | READLN "(" input_list ")"
+READLN : "readln"
+input_list : list_of_variables
+
+output_operator : WRITELN "(" output_list ")"
+WRITELN : "writeln"
+output_list : list_of_expressions
+
+list_of_expressions : expression ( "," expression )*
+expression : arithmetic_expression | text_expression
+
+arithmetic_expression : whole_constant 
+						| variable 
+						| arithmetic_expression SIGN_OF_ARITH_OPERATION arithmetic_expression
+SIGN_OF_ARITH_OPERATION : "+" | "-" | "*" | "div" | "mod"
+text_expression : text_constant
+
+operator_of_assignment : variable SIGN_OF_ASSIGNMENT expression
+SIGN_OF_ASSIGNMENT : ":="
+
+section_of_constants : "const" list_of_variables_declaration
+list_of_variables_declaration : constant_declaration (";" constant_declaration)*
+constant_declaration : name_of_constant "=" constant
+name_of_constant : identificator
+constant : whole_constant
+
+whole_constant : SIGN whole_unsigned_number | whole_unsigned_number 
+whole_unsigned_number : (NUMBER)+
+SIGN : "+" | "-"
+text_constant : "\"" (LETTER|NUMBER)* "\""
+
+LETTER : ("a".."z" | "_")+
+NUMBER : ("0".."9")+
+WHITESPACE : (" " | "\n" | "\t")+
+%ignore WHITESPACE
+
+
+
+
+
+
+

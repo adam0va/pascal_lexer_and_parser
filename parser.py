@@ -1,4 +1,5 @@
 from lexem import TypeOfLexem
+from lark import Lark
 
 
 class ParserSyntaxError(Exception):
@@ -20,8 +21,8 @@ class Parser:
 		self.number_of_current_lexem = 0
 		self.length_of_list = len(self.lexems)
 		self.current_lexem = self.lexems[self.number_of_current_lexem]
-		self.print_name_of_functions = True
-		self.print_lexem = True
+		self.print_name_of_functions = False
+		self.print_lexem = False
 
 	def next(self):
 		self.number_of_current_lexem += 1
@@ -411,8 +412,6 @@ class Parser:
 def syntatic_analysis(lexems):
 	parser = Parser(lexems)
 	parser.analyse()
-
-
 
 
 

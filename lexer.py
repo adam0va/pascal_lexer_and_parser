@@ -26,7 +26,7 @@ class Lexer:
 	def take(self, c):
 		if c == '\n':
 			self.current_line = self.current_line + 1
-		print(f'{c} {self.current_line} {self.state}')
+		#print(f'{c} {self.current_line} {self.state}')
 
 		if self.state == State.H:
 			self.state_H(c)
@@ -203,7 +203,7 @@ def lex_analysis(filename: str):
 		data = file.read()
 
 	data = list(data)
-	print(data)
+	#print(data)
 	lexer = Lexer()
 	lexems = []
 
