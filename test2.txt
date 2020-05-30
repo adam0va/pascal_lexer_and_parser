@@ -1,17 +1,14 @@
-program my_program;
+program;
 
 var a, b, c: Integer;
 	str: Word;
 const
 	s = 12;
-var e: LongInt;
 
 begin
 	readln ;
-	writeln (-234 * -4 * 14);
+	writeln (-234 * 4 * 14);
 	a := 3 - -7;
 	b := -7;
-	str:= "hello"
-
-
+	str:= hello
 end.
