@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
 	parser.syntatic_analysis(lexems)
 
-	lark_tree.build_AST(filename)
+	#lark_tree.build_AST(filename)
 
 
 	

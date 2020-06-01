@@ -1,6 +1,6 @@
 from lexem import TypeOfLexem, Lexem
 from lark import Lark
-
+import tree
 
 class ParserSyntaxError(Exception):
 	def __init__(self, *args):
@@ -53,18 +53,21 @@ class Parser:
 		return self.lexems[self.number_of_current_lexem].lexem_string == keyword
 
 	def analyse(self):
-		self.program()
+		minipascal_program = self.program()
+		self.ast = tree.AST(minipascal_program)
+		self.ast.print_tree()
 
 	def program(self):
 		if self.print_name_of_functions:
 			print('program')
-		self.head_of_the_program()
+		head = self.head_of_the_program()
 		if not self.check_correctness_of_delimiter(';'):
 			raise ParserSyntaxError('";" expected between head of the program and block')
 		self.next()
-		self.block()
+		block = self.block()
 		if not self.check_correctness_of_delimiter('.'):
 			raise ParserSyntaxError('"." expected in the end of the program')
+		return tree.MinipascalProgramNode(head, block)
 
 	def head_of_the_program(self):
 		if self.print_name_of_functions:
@@ -74,7 +77,11 @@ class Parser:
 		self.next()
 		if not self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
 			raise ParserSyntaxError('Identificator expected')
+		identificator = tree.IdentificatorNode(self.lexems[self.number_of_current_lexem])
+		name_of_the_program = tree.NameOfTheProgramNode(identificator)
+		head_of_the_program = tree.HeadOfTheProgramNode(name_of_the_program)
 		self.next()
+		return head_of_the_program
 
 	def block(self):
 		if self.print_name_of_functions:
@@ -408,6 +415,10 @@ class Parser:
 			raise ParserSyntaxError('Number exprected')
 		self.next()
 
+	def identificator(self):
+		if not self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
+			raise ParserSyntaxError('Identificator expected')
+		self.next()
 
 
 def syntatic_analysis(lexems):
