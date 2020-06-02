@@ -223,7 +223,7 @@ class OperatorNode(AST):
 class InputOperatorNode(AST):
 	def __init__(self, **kwagrs):
 		if 'input_list' in kwagrs:
-			self.input_list = input_list
+			self.input_list = kwagrs['input_list']
 		else:
 			self.input_list = None
 
@@ -337,8 +337,7 @@ class TextExpressionNode(AST):
 		self.text_constant = text_constant
 
 	def print_tree(self, indent):
-		print(f'{" "*indent}text_expression')
-		self.text_constant.print_tree(indent=indent+2)
+		print(f'{" "*indent}text_expression\t{self.text_constant.lexem_string}')
 
 class OperatorOfAssignmentNode(AST):
 	def __init__(self, variable, sign, expression):

@@ -11,7 +11,7 @@ begin
 	writeln (-234 * -4 * 14);
 	a := 3 - -7;
 	b := -7;
-	str:= "hello"
-
+	str:= "hello";
+	readln(e, a, b)
 
 end.
