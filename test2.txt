@@ -1,9 +1,7 @@
-program;
+program my_program;
 
 var a, b, c: Integer;
 	str: Word;
-const
-	s = 12;
 
 begin
 	readln ;
