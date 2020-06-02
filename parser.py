@@ -21,8 +21,8 @@ class Parser:
 		self.number_of_current_lexem = 0
 		self.length_of_list = len(self.lexems)
 		self.current_lexem = self.lexems[self.number_of_current_lexem]
-		self.print_name_of_functions = False
-		self.print_lexem = False
+		self.print_name_of_functions = True
+		self.print_lexem = True
 
 	def next(self):
 		self.number_of_current_lexem += 1
@@ -114,7 +114,7 @@ class Parser:
 		section = self.section()
 		list_of_sections = self.list_of_sections_()
 		if list_of_sections:
-			return tree.ListOfSectionsNode(section, list_of_sections)
+			return tree.ListOfSectionsNode(section, list_of_sections=list_of_sections)
 		else:
 			return tree.ListOfSectionsNode(section)
 
@@ -126,7 +126,7 @@ class Parser:
 			section = self.section()
 			list_of_sections = self.list_of_sections_()
 			if list_of_sections:
-				return tree.ListOfSectionsNode(section, list_of_sections)
+				return tree.ListOfSectionsNode(section, list_of_sections=list_of_sections)
 			else:
 				return tree.ListOfSectionsNode(section)
 		'''
@@ -183,7 +183,8 @@ class Parser:
 			self.next()
 			# ";" может служить как концом секции объявления переменных и констант,
 			# так и концом лишь части их объявлений
-			if self.check_correctness_of_keyword('begin') or self.check_correctness_of_keyword('const'):
+			if self.check_correctness_of_keyword('begin') or self.check_correctness_of_keyword('const')\
+			or self.check_correctness_of_keyword('var'):
 				return
 			variables_description = self.variables_description()
 			list_of_variables_description = self.list_of_variables_description_()
@@ -252,13 +253,19 @@ class Parser:
 		if not self.check_correctness_of_keyword('const'):
 			raise ParserSyntaxError('"const" expected before constants description')
 		self.next()
-		self.list_of_constants_declaration()
+		list_of_constants_declaration=self.list_of_constants_declaration()
+		return tree.SectionOfConstantsNode(list_of_constants_declaration)
 
 	def list_of_constants_declaration(self):
 		if self.print_name_of_functions:
 			print('list_of_constants_declaration')
-		self.constant_declaration()
-		self.list_of_constants_declaration_()
+		constant_declaration=self.constant_declaration()
+		list_of_constants_declaration= self.list_of_constants_declaration_()
+		if list_of_constants_declaration:
+			return tree.ListOfConstantsDeclarationsNode(constant_declaration, \
+				list_of_const_declarations=list_of_constants_declaration)
+		else:
+			return tree.ListOfConstantsDeclarationsNode(constant_declaration)
 
 	def list_of_constants_declaration_(self):
 		if self.print_name_of_functions:
@@ -267,34 +274,51 @@ class Parser:
 			self.next()
 			# ";" может служить как концом секции объявления переменных и констант,
 			# так и концом лишь части их объявления
-			if self.check_correctness_of_keyword('begin') or self.check_correctness_of_keyword('var'):
+			if self.check_correctness_of_keyword('begin') or self.check_correctness_of_keyword('var') or\
+			self.check_correctness_of_keyword('const'):
 				return
-			self.constant_declaration()
-			self.list_of_constants_declaration_()
+			constant_declaration=self.constant_declaration()
+			list_of_constants_declaration= self.list_of_constants_declaration_()
+			if list_of_constants_declaration:
+				return tree.ListOfConstantsDeclarationsNode(constant_declaration, \
+					list_of_const_declarations=list_of_constants_declaration)
+			else:
+				return tree.ListOfConstantsDeclarationsNode(constant_declaration)
 
 	def constant_declaration(self):
 		if self.print_name_of_functions:
 			print('constant_declaration')
-		self.name_of_constant()
+		name = self.name_of_constant()
+		ident = tree.IdentificatorNode(name)
 		if not self.check_correctness_of_delimiter('='):
 			raise ParserSyntaxError('"=" expected in constant declaration')
 		self.next()
-		self.constant()
+		constant = self.constant()
+		return tree.ConstantDeclarationNode(ident, constant)
 
 	def name_of_constant(self):
 		if self.print_name_of_functions:
 			print('name_of_constant')
 		if not self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
 			raise ParserSyntaxError('Identificator expected')
+		name = self.lexems[self.number_of_current_lexem]
 		self.next()
+		return name
 
 	def constant(self):
 		if self.print_name_of_functions:
 			print('constant')
-		if not self.lexems[self.number_of_current_lexem].type_of_lexem in {TypeOfLexem.number, \
-		TypeOfLexem.string}:
+		print(f'type:{self.lexems[self.number_of_current_lexem].type_of_lexem}')
+		if self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.number or \
+		self.lexems[self.number_of_current_lexem].lexem_string in {'+', '-'}:
+			number = self.number()
+			return tree.ConstantNode(whole_constant=number)
+		elif self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.string:
+			string = self.lexems[self.number_of_current_lexem]
+			self.next()
+			return tree.ConstantNode(text_constant=string)
+		else:
 			raise ParserSyntaxError('Constant expected')
-		self.next()
 
 	# operators
 	def operators(self):
@@ -524,6 +548,8 @@ class Parser:
 			raise ParserSyntaxError('Arithmetic operation sign expected')
 
 	def number(self):
+		if self.print_name_of_functions:
+			print('number')
 		if self.check_correctness_of_arithmetic_operation_sign('+') \
 		or self.check_correctness_of_arithmetic_operation_sign('-'):
 			sign = self.lexems[self.number_of_current_lexem]

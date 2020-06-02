@@ -2,6 +2,9 @@ program my_program;
 
 var a, b, c: Integer;
 	str: Word;
+const my_const = 5;
+	one_more_const = "const_string";
+var d, e: Integer;
 
 begin
 	readln ;

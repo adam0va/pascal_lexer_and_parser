@@ -70,9 +70,9 @@ class DeclarativePartNode(AST):
 		self.list_of_sections.print_tree(indent=indent+2)
 
 class ListOfSectionsNode(AST):
-	def __init__(self, section, **kwagrs):
+	def __init__(self, section, **kwargs):
 		self.section = section
-		if 'list_of_sections' in kwagrs:
+		if 'list_of_sections' in kwargs:
 			self.list_of_sections = kwargs['list_of_sections']
 		else:
 			self.list_of_sections = None
@@ -89,19 +89,20 @@ class SectionNode(AST):
 			self.section_of_variables = kwargs['section_of_variables']
 		else:
 			self.section_of_variables = None
-			'''
+		
 		if 'section_of_constants' in kwargs:
 			self.section_of_constants = kwargs['section_of_constants']
-			'''
+		else:
+			self.section_of_constants = None
 
 	def print_tree(self, indent):
 		print(f'{" "*indent}section')
 		if self.section_of_variables:
 			self.section_of_variables.print_tree(indent=indent+2)
-			'''
+			
 		if self.section_of_constants:
 			self.section_of_constants.print_tree(indent=indent+2)
-			'''
+			
 
 class SectionOfVariablesNode(AST):
 	def __init__(self, list_of_var_descriptions):
@@ -370,11 +371,55 @@ class WholeConstantNode(AST):
 		else:
 			print(f'{" "*(indent+2)}{self.number.lexem_string}')
 
+class SectionOfConstantsNode(AST):
+	def __init__(self, list_of_const_declarations):
+		self.list_of_const_declarations = list_of_const_declarations
 
+	def print_tree(self, indent):
+		print(f'{" "*indent}section_of_constants')
+		self.list_of_const_declarations.print_tree(indent=indent+2)
 
+class ListOfConstantsDeclarationsNode(AST):
+	def __init__(self, const_declaration, **kwargs):
+		self.const_declaration = const_declaration
+		if 'list_of_const_declarations' in kwargs:
+			self.list_of_const_declarations = kwargs['list_of_const_declarations']
+		else:
+			self.list_of_const_declarations = None
 
+	def print_tree(self, indent):
+		print(f'{" "*indent}list_of_const_declarations')
+		self.const_declaration.print_tree(indent=indent+2)
+		if self.list_of_const_declarations:
+			self.list_of_const_declarations.print_tree(indent=indent+2)
 
+class ConstantDeclarationNode(AST):
+	def __init__(self, name_of_constant, constant):
+		self.name_of_constant = name_of_constant
+		self.constant = constant
 
+	def print_tree(self, indent):
+		print(f'{" "*indent}constant_declaration')
+		self.name_of_constant.print_tree(indent=indent+2)
+		self.constant.print_tree(indent=indent+2)
+
+class ConstantNode(AST):
+	def __init__(self, **kwargs):
+		if 'text_constant' in kwargs:
+			self.text_constant = kwargs['text_constant']
+		else:
+			self.text_constant = None
+		if 'whole_constant' in kwargs:
+			self.whole_constant = kwargs['whole_constant']
+		else:
+			self.whole_constant = None
+
+	def print_tree(self, indent):
+		print(f'{" "*indent}constant')
+		if self.text_constant:
+			print(f'{" "*(indent+2)}text_constant\t{self.text_constant.lexem_string}')
+		if self.whole_constant:
+			self.whole_constant.print_tree(indent=indent+2)
 
 
 
