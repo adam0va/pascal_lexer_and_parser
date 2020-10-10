@@ -11,12 +11,12 @@ class State(Enum):
 	PLUS_MINUS = 7
 
 class Lexer:
-	keywords = {'program', 'var', 'Byte', 'Word', 'ShortInt', 'Integer', 'LongInt',\
-	'begin', 'end', 'readln', 'writeln', 'div', 'mod', 'const'}
+	keywords = {'program', 'var', 'Byte', 'Word', 'ShortInt', 'Integer', 'Boolean', 'LongInt',\
+	'begin', 'end', 'readln', 'writeln', 'div', 'mod', 'const', 'if', 'then', 'true', 'false'}
 	delimiters = {';', '.', ':', ',', '(', ')', '='}
-	arithmetic_operations = {'+', '-', '*'}
+	arithmetic_operations = {'+', '-', '*', '/'}
 	assignment = {':='}
-	any_sign = {';', '.', ':', ',', '(', ')', '+', '-', '*', ':=', '='}
+	any_sign = {';', '.', ':', ',', '(', ')', '+', '-', '*', '/', ':=', '='}
 	def __init__(self):
 		self.state = State.H
 		self.current_line = 1
@@ -91,7 +91,7 @@ class Lexer:
 			self.current_lexem = self.current_lexem + c
 		elif c.isalpha():
 			self.state = State.ERROR
-			print(f'Line {self.current_line}: Number expected')
+			#print(f'Line {self.current_line}: Number expected')
 		elif c in self.any_sign:
 			self.make_lexem(TypeOfLexem.number)
 			self.handle_signs(c)
@@ -131,39 +131,7 @@ class Lexer:
 
 	def state_PLUS_MINUS(self, c):
 		pass
-		'''
-		# если следующим за знаком +/- автомат получил число, то
-		if c.isnumeric():
-			# если перед ним распознана переменная или идентификатор, то
-			# будем считать, что +/- это знак арифметической операции
-			print(f'last type: {self.lexems_ready[-1].type_of_lexem}')
-			if self.lexems_ready[-1].type_of_lexem == TypeOfLexem.number or \
-			self.lexems_ready[-1].type_of_lexem == TypeOfLexem.identificator:
-				self.make_lexem(TypeOfLexem.arithmetic_operation)
-				self.state = State.H
-				self.state_H(c)
-			# если перед ним распознан любой другой знак, то 
-			# будем считать, что +/- это знак знакового числа
-			else:
-				self.current_lexem = self.current_lexem + c
-				self.state = State.NUMBER
-
-		# если следующим за знаком +/- автомат получил НЕ число, то
-		# будем считать, что +/- это знак арифметической операции
-		else:
-			self.make_lexem(TypeOfLexem.arithmetic_operation)
-			self.state = State.H
-			self.state_H(c)
-		'''
-		'''
-		if c.isnumeric():
-			self.current_lexem = self.current_lexem + c
-			self.state = State.NUMBER
-		else:
-			self.make_lexem(TypeOfLexem.arithmetic_operation)
-			self.state = State.H
-			self.state_H(c)
-		'''
+		
 
 	def handle_delimiter(self, c):
 		self.current_lexem = self.current_lexem + c

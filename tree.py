@@ -204,6 +204,10 @@ class OperatorNode(AST):
 			self.operator_of_assignment = kwargs['operator_of_assignment']
 		else:
 			self.operator_of_assignment = None
+		if 'if_operator' in kwargs:
+			self.if_operator = kwargs['if_operator']
+		else:
+			self.if_operator = None
 		if 'empty_operator' in kwargs:
 			self.empty_operator = ['empty_operator']
 		else:
@@ -217,8 +221,20 @@ class OperatorNode(AST):
 			self.output_operator.print_tree(indent=indent+2)
 		elif self.operator_of_assignment:
 			self.operator_of_assignment.print_tree(indent=indent+2)
+		elif self.if_operator:
+			self.if_operator.print_tree(indent=indent+2)
 		elif self.empty_operator:
 			self.empty_operator.print_tree(indent=indent+2)
+
+class IfOperatorNode(AST):
+	def __init__(self, logic_expression, operator, **kwargs):
+		self.logic_expression = logic_expression
+		self.operator = operator
+
+	def print_tree(self, indent):
+		print(f'{" "*indent}if_operator')
+		print(f'{" "*(indent+2)}logic_expression\t{self.logic_expression.lexem_string}')
+		self.operator.print_tree(indent=indent+2)
 
 class InputOperatorNode(AST):
 	def __init__(self, **kwagrs):

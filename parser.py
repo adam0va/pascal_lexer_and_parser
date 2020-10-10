@@ -1,5 +1,5 @@
 from lexem import TypeOfLexem, Lexem
-from lark import Lark
+#from lark import Lark
 import tree
 
 class ParserSyntaxError(Exception):
@@ -21,8 +21,8 @@ class Parser:
 		self.number_of_current_lexem = 0
 		self.length_of_list = len(self.lexems)
 		self.current_lexem = self.lexems[self.number_of_current_lexem]
-		self.print_name_of_functions = True
-		self.print_lexem = True
+		self.print_name_of_functions = False
+		self.print_lexem = False
 
 	def next(self):
 		self.number_of_current_lexem += 1
@@ -240,7 +240,7 @@ class Parser:
 			print('type')
 		if not (self.check_correctness_of_keyword('Byte') or self.check_correctness_of_keyword('Word') or \
 			self.check_correctness_of_keyword('ShortInt') or self.check_correctness_of_keyword('Integer') or \
-			self.check_correctness_of_keyword('LongInt')):
+			self.check_correctness_of_keyword('LongInt') or self.check_correctness_of_keyword('Boolean')):
 			raise ParserSyntaxError('Type expected')
 		keyword = self.lexems[self.number_of_current_lexem]
 		self.next()
@@ -330,6 +330,7 @@ class Parser:
 		self.next()
 		operators_sequence = self.operators_sequence()
 		if not self.check_correctness_of_keyword('end'):
+			print(self.lexems[self.number_of_current_lexem].lexem_string)
 			raise ParserSyntaxError('"end" expected after operators')
 		self.next()
 		return tree.OperatorsNode(operators_sequence)
@@ -367,9 +368,46 @@ class Parser:
 		elif self.check_correctness_of_keyword('writeln'):
 			output_operator = self.output_operator()
 			return tree.OperatorNode(output_operator=output_operator)
+		elif self.check_correctness_of_keyword('if'):
+			if_operator = self.if_operator()
+			return tree.OperatorNode(if_operator=if_operator)
 		elif self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
 			operator_of_assignment = self.operator_of_assignment()
 			return tree.OperatorNode(operator_of_assignment=operator_of_assignment)
+
+	# if operator
+	def if_operator(self):
+		if self.print_name_of_functions:
+			print('if_operator')
+		if not self.check_correctness_of_keyword('if'):
+			raise ParserSyntaxError('If operator expected')
+		self.next()
+		logic_expression = self.logic_expression()
+		if not self.check_correctness_of_keyword('then'):
+			raise ParserSyntaxError('\'Then\' expected before operators')
+		self.next()
+		operator = self.operator()
+		return tree.IfOperatorNode(logic_expression=logic_expression, operator=operator)
+
+		'''
+		if self.check_correctness_of_delimiter('('):
+			self.next()
+			input_list = self.input_list()
+			if not self.check_correctness_of_delimiter(')'):
+				raise ParserSyntaxError('")" expected after input list')
+			self.next()
+			return tree.InputOperatorNode(input_list=input_list)
+		else:
+			return tree.InputOperatorNode()'''
+
+	def logic_expression(self):
+		if self.check_correctness_of_keyword('true') or self.check_correctness_of_keyword('false') or \
+		self.lexems[self.number_of_current_lexem].type_of_lexem == TypeOfLexem.identificator:
+			logic_expression = self.lexems[self.number_of_current_lexem]
+			self.next()
+			return logic_expression
+		else: 
+			raise ParserSyntaxError('Logic expression expected')
 
 	# input operator
 	def input_operator(self):
@@ -410,6 +448,7 @@ class Parser:
 			self.next()
 			list_of_expressions = self.list_of_expressions()
 			if not self.check_correctness_of_delimiter(')'):
+				print(self.lexems[self.number_of_current_lexem].lexem_string)
 				raise ParserSyntaxError('")" expected after list of expressions for output')
 			self.next()
 			output_list = tree.OutputListNode(list_of_expressions)
@@ -510,7 +549,7 @@ class Parser:
 	def arithmetic_expression_(self):
 		if self.print_name_of_functions:
 			print('arithmetic_expression_')
-		if self.lexems[self.number_of_current_lexem].lexem_string in ('+', '-', '*', 'div', 'mod'):
+		if self.lexems[self.number_of_current_lexem].lexem_string in ('+', '-', '*', '/', 'div', 'mod'):
 			sign = self.sign_of_arithmetic_expression()
 			arithmetic_expression1 = self.arithmetic_expression()
 			arithmetic_expression2 = self.arithmetic_expression_()
@@ -533,6 +572,10 @@ class Parser:
 			self.next()
 			return sign
 		elif self.check_correctness_of_arithmetic_operation_sign('*'):
+			sign = self.lexems[self.number_of_current_lexem]
+			self.next()
+			return sign
+		elif self.check_correctness_of_arithmetic_operation_sign('/'):
 			sign = self.lexems[self.number_of_current_lexem]
 			self.next()
 			return sign

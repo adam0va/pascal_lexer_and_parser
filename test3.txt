@@ -1,0 +1,8 @@
+program my_program;
+
+var a, b, c: Boolean;
+
+begin
+	if a then writeln ( 4/2 );
+	if true then writeln (4000 );	
+end.
